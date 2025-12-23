@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบคำนวณเงินชดเชย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --corp-navy: #1A2E44; --corp-gold: #B59461; --corp-bg: #F4F7F9;
+            --corp-white: #FFFFFF; --corp-text: #333333; --corp-border: #D1D9E0;
+            --corp-red: #D32F2F; --corp-green: #2E7D32;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--corp-bg); color: var(--corp-text); font-family: 'Sarabun', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 15px; }
+        .container { width: 100%; max-width: 430px; margin: 0 auto; flex-grow: 1; }
+        .header { text-align: center; margin: 30px 0; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; color: var(--corp-navy); margin: 0; }
+        .card { background: var(--corp-white); border-radius: 16px; padding: 28px; box-shadow: 0 10px 25px rgba(26,46,68,0.08); border: 1px solid var(--corp-border); }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; color: var(--corp-navy); opacity: 0.8; }
+        select, input { width: 100%; padding: 14px; border: 1px solid var(--corp-border); border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; background: #FAFCFD; }
+        input:focus { border-color: var(--corp-gold); background: #FFF; box-shadow: 0 0 0 3px rgba(181,148,97,0.1); }
+        input[readonly] { background-color: #F0F4F7; color: #666; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        button { width: 100%; padding: 18px; background-color: var(--corp-navy); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .result-box { margin-top: 30px; padding: 25px 20px; border-radius: 12px; text-align: center; display: none; background-color: #F8FAFC; border: 1.5px solid var(--corp-border); animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-amount { font-size: 2.5rem; font-weight: 700; margin: 10px 0; }
+        .formula-card { margin-top: 30px; padding: 20px; background: #EDF2F6; border-radius: 10px; font-size: 0.8rem; color: #556677; border-left: 4px solid var(--corp-gold); }
+        .visitor-stats { display: flex; justify-content: center; gap: 15px; margin-top: 20px; font-size: 0.75rem; color: var(--corp-navy); opacity: 0.6; }
+        footer { padding: 40px 10px; text-align: center; }
+        .developer-name { font-size: 0.95rem; font-weight: 600; display: inline-block; background: linear-gradient(to right, #1A2E44 0%, #B59461 25%, #2E7D32 50%, #B59461 75%, #1A2E44 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: ledFlow 3s linear infinite; }
+        @keyframes ledFlow { to { background-position: 200% center; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header"><h1>Financial Compensation</h1></div>
+    <div class="card">
+        <div class="input-group">
+            <label>วุฒิการศึกษา</label>
+            <select id="eduLevel" onchange="handleEduChange()">
+                <option value="12690,15370">ปวช.</option>
+                <option value="14160,17150">ปวส.</option>
+                <option value="16830,20380">ป.ตรี 4 ปี</option>
+                <option value="17830,21590">ป.ตรี 4 ปี (วศก.)</option>
+                <option value="20030,24250">ป.โท 4 ปี</option>
+                <option value="custom">อื่นๆ (กำหนดเอง)</option>
+            </select>
+        </div>
+        <div class="grid-inputs">
+            <div><label>แรกบรรจุเดิม</label><input type="number" id="oldEntry" inputmode="decimal"></div>
+            <div><label>แรกบรรจุใหม่</label><input type="number" id="newEntry" inputmode="decimal"></div>
+        </div>
+        <div class="input-group">
+            <label>เงินเดือนปัจจุบัน (บาท)</label>
+            <input type="number" id="currentSalary" placeholder="ระบุเงินเดือนแล้วกด Enter" inputmode="decimal">
+        </div>
+        <button onclick="calculate()">คำนวณเงินเยียวยา</button>
+
+        <div id="resultBox" class="result-box">
+            <div style="font-size: 0.9rem; opacity: 0.7;">จำนวนเงินชดเชยสุทธิ</div>
+            <div id="resAmt" class="result-amount">0.00</div>
+            <div id="randomMsg" style="font-size: 1rem; font-weight: 500; margin-top: 8px;"></div>
+        </div>
+
+        <div class="formula-card">
+            <span style="font-weight:700; color:var(--corp-navy);">Methodology:</span><br>
+            (เงินปัจจุบัน - แรกบรรจุเดิม) × 0.5832 - (เงินปัจจุบัน - แรกบรรจุใหม่)
+        </div>
+
+        <div class="visitor-stats">
+            <span>ผู้เข้าใช้งานทั้งหมด: <span id="total-v">...</span> ครั้ง</span>
+        </div>
+    </div>
+    <footer><span class="developer-name">ผู้พัฒนา: ชผ.บส.กฟจ.นครพนม</span></footer>
+</div>
+
+<script>
+    const oldInput = document.getElementById('oldEntry');
+    const newInput = document.getElementById('newEntry');
+    const currSalaryInput = document.getElementById('currentSalary');
+    const eduSelect = document.getElementById('eduLevel');
+
+    const posMessages = ["Wow! ฉลองๆ หมูทะต้องเข้าแล้ว 🐷", "ยินดีด้วยครับ! กระเป๋าตุงแน่นอน 💰", "ปังมาก! เตรียมตัวเป็นเศรษฐีหน้าใหม่ ✨", "สุดยอด! ได้ค่าขนมเพิ่มแล้วนะ 🍰", "ใจฟูเลยสิครับ! ยินดีกับยอดด้วยนะ 😊"];
+    const negMessages = ["ไม่เป็นไรนะ... สู้กันต่อไปงวดหน้า ✌️", "ตบบ่าเบาๆ... ยอดนี้อาจยังไม่ใช่ของเรา 🥺", "ฮึบไว้ครับ! ความพยายามไม่ทำร้ายใคร ✊", "โถ่... เกือบไปแล้ว อีกนิดเดียวเท่านั้น 🌊", "ใจเย็นๆ นะครับ งวดหน้าเริ่มกันใหม่ 🌈"];
+
+    // ฟังก์ชันตัวนับแบบปรับปรุงใหม่
+    function updateVisitorCount() {
+        // ใช้ Key ที่เจาะจงและมีเลข Version เพื่อเลี่ยง Cache เก่า
+        const cacheBuster = Math.floor(Date.now() / 1000);
+        const url = `https://api.countapi.xyz/hit/pea_nkp_v2_${cacheBuster % 10}/visit`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                // ถ้า API ทำงานปกติ จะได้เลขสะสม
+                document.getElementById('total-v').innerText = data.value.toLocaleString();
+            })
+            .catch(() => {
+                // ถ้า API ล่ม ให้ใช้วิธีนับในเครื่องตัวเอง (เป็นแผนสำรอง)
+                let count = localStorage.getItem('local_v') || 0;
+                count++;
+                localStorage.setItem('local_v', count);
+                document.getElementById('total-v').innerText = count;
+            });
+    }
+    updateVisitorCount();
+
+    [oldInput, newInput, currSalaryInput].forEach(input => {
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { calculate(); input.blur(); } });
+    });
+
+    function handleEduChange() {
+        const val = eduSelect.value;
+        if (val === 'custom') {
+            oldInput.readOnly = false; newInput.readOnly = false;
+            oldInput.value = ""; newInput.value = "";
+        } else {
+            oldInput.readOnly = true; newInput.readOnly = true;
+            const [o, n] = val.split(',').map(Number);
+            oldInput.value = o; newInput.value = n;
+        }
+    }
+
+    function calculate() {
+        const salary = parseFloat(currSalaryInput.value);
+        const oldEntry = parseFloat(oldInput.value);
+        const newEntry = parseFloat(newInput.value);
+        if (isNaN(salary) || isNaN(oldEntry) || isNaN(newEntry)) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+
+        const result = ((salary - oldEntry) * 0.5832) - (salary - newEntry);
+        const resBox = document.getElementById('resultBox');
+        const resAmt = document.getElementById('resAmt');
+        const msgArea = document.getElementById('randomMsg');
+
+        resBox.style.display = 'block';
+        resAmt.innerText = result.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        if (result >= 0) {
+            resAmt.style.color = "var(--corp-green)"; msgArea.style.color = "var(--corp-green)";
+            msgArea.innerText = posMessages[Math.floor(Math.random() * posMessages.length)];
+        } else {
+            resAmt.style.color = "var(--corp-red)"; msgArea.style.color = "var(--corp-red)";
+            msgArea.innerText = negMessages[Math.floor(Math.random() * negMessages.length)];
+        }
+    }
+    handleEduChange();
+</script>
+</body>
+</html>

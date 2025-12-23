@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบคำนวณเงินชดเชย</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --corp-navy: #1A2E44; --corp-gold: #B59461; --corp-bg: #F4F7F9;
@@ -12,25 +13,103 @@
             --corp-red: #D32F2F; --corp-green: #2E7D32;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--corp-bg); color: var(--corp-text); font-family: 'Sarabun', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 15px; }
-        .container { width: 100%; max-width: 430px; margin: 0 auto; flex-grow: 1; }
-        .header { text-align: center; margin: 30px 0; }
-        .header h1 { font-size: 1.5rem; font-weight: 600; color: var(--corp-navy); margin: 0; }
-        .card { background: var(--corp-white); border-radius: 16px; padding: 28px; box-shadow: 0 10px 25px rgba(26,46,68,0.08); border: 1px solid var(--corp-border); }
+        
+        /* 1. Animated Background */
+        body { 
+            background: linear-gradient(-45deg, #1A2E44, #2c4a6e, #B59461, #1A2E44);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--corp-text); 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            padding: 15px; 
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { width: 100%; max-width: 430px; margin: 0 auto; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        
+        .header { text-align: center; margin: 20px 0; animation: fadeInDown 0.8s ease-out; }
+        .header h1 { font-size: 1.6rem; font-weight: 700; color: #FFF; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        /* Glassmorphism Effect for Card if desired, or just clean white pop */
+        .card { 
+            background: rgba(255, 255, 255, 0.98); 
+            border-radius: 20px; 
+            padding: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255,255,255,0.5); 
+            margin-bottom: 20px; 
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
         .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; color: var(--corp-navy); opacity: 0.8; }
-        select, input { width: 100%; padding: 14px; border: 1px solid var(--corp-border); border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; background: #FAFCFD; }
-        input:focus { border-color: var(--corp-gold); background: #FFF; box-shadow: 0 0 0 3px rgba(181,148,97,0.1); }
-        input[readonly] { background-color: #F0F4F7; color: #666; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; color: var(--corp-navy); }
+        
+        select, input { 
+            width: 100%; padding: 14px; border: 2px solid #E0E6ED; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: #FAFCFD; 
+        }
+        
+        /* Input Focus Effect */
+        input:focus, select:focus { 
+            border-color: var(--corp-gold); 
+            background: #FFF; 
+            box-shadow: 0 4px 12px rgba(181,148,97,0.15); 
+            transform: translateY(-2px);
+        }
+        
+        input[readonly] { background-color: #F0F4F7; color: #8898aa; border-color: transparent; }
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        button { width: 100%; padding: 18px; background-color: var(--corp-navy); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .result-box { margin-top: 30px; padding: 25px 20px; border-radius: 12px; text-align: center; display: none; background-color: #F8FAFC; border: 1.5px solid var(--corp-border); animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .result-amount { font-size: 2.5rem; font-weight: 700; margin: 10px 0; }
+        
+        /* Button Animation */
+        button { 
+            width: 100%; padding: 18px; 
+            background: linear-gradient(135deg, var(--corp-navy) 0%, #2c4a6e 100%);
+            color: white; border: none; border-radius: 12px; 
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(26, 46, 68, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 7px 14px rgba(26, 46, 68, 0.25); }
+        button:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(26, 46, 68, 0.2); }
+        
+        /* Result Box Enhancements */
+        .result-box { 
+            margin-top: 30px; padding: 25px 20px; border-radius: 16px; text-align: center; display: none; 
+            background: linear-gradient(to bottom, #FFFFFF, #F8FAFC);
+            border: 1px solid var(--corp-border); 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .result-amount { font-size: 2.8rem; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
+        
         .formula-card { margin-top: 30px; padding: 20px; background: #EDF2F6; border-radius: 10px; font-size: 0.8rem; color: #556677; border-left: 4px solid var(--corp-gold); }
-        .visitor-stats { display: flex; justify-content: center; gap: 15px; margin-top: 20px; font-size: 0.75rem; color: var(--corp-navy); opacity: 0.6; }
-        footer { padding: 40px 10px; text-align: center; }
-        .developer-name { font-size: 0.95rem; font-weight: 600; display: inline-block; background: linear-gradient(to right, #1A2E44 0%, #B59461 25%, #2E7D32 50%, #B59461 75%, #1A2E44 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: ledFlow 3s linear infinite; }
+        
+        .footer-section { 
+            margin-top: 25px; text-align: center; display: flex; flex-direction: column; gap: 8px; padding-top: 20px;
+            border-top: 1px dashed #E0E0E0; 
+        }
+        .visitor-text { font-size: 0.75rem; color: var(--corp-navy); opacity: 0.6; }
+        
+        .developer-name { 
+            font-size: 0.85rem; font-weight: 600; display: inline-block; 
+            background: linear-gradient(to right, #1A2E44 0%, #B59461 25%, #2E7D32 50%, #B59461 75%, #1A2E44 100%); 
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            animation: ledFlow 3s linear infinite; 
+        }
         @keyframes ledFlow { to { background-position: 200% center; } }
     </style>
 </head>
@@ -71,11 +150,11 @@
             (เงินปัจจุบัน - แรกบรรจุเดิม) × 0.5832 - (เงินปัจจุบัน - แรกบรรจุใหม่)
         </div>
 
-        <div class="visitor-stats">
-            <span>ผู้เข้าใช้งานทั้งหมด: <span id="total-v">...</span> ครั้ง</span>
+        <div class="footer-section">
+            <span class="visitor-text">ผู้เข้าใช้งานทั้งหมด: <span id="total-v">...</span> ครั้ง</span>
+            <span class="developer-name">Developer : ชผ.บส.กฟจ.นครพนม</span>
         </div>
     </div>
-    <footer><span class="developer-name">Developer : ชผ.บส.กฟจ.นครพนม</span></footer>
 </div>
 
 <script>
@@ -83,27 +162,21 @@
     const newInput = document.getElementById('newEntry');
     const currSalaryInput = document.getElementById('currentSalary');
     const eduSelect = document.getElementById('eduLevel');
+    const resultBox = document.getElementById('resultBox');
 
     const posMessages = ["Wow! ฉลองๆ หมูทะต้องเข้าแล้ว 🐷", "ยินดีด้วยครับ! กระเป๋าตุงแน่นอน 💰", "ปังมาก! เตรียมตัวเป็นเศรษฐีหน้าใหม่ ✨", "สุดยอด! ได้ค่าขนมเพิ่มแล้วนะ 🍰", "ใจฟูเลยสิครับ! ยินดีกับยอดด้วยนะ 😊"];
     const negMessages = ["ไม่เป็นไรนะ... สู้กันต่อไปงวดหน้า ✌️", "ตบบ่าเบาๆ... ยอดนี้อาจยังไม่ใช่ของเรา 🥺", "ฮึบไว้ครับ! ความพยายามไม่ทำร้ายใคร ✊", "โถ่... เกือบไปแล้ว อีกนิดเดียวเท่านั้น 🌊", "ใจเย็นๆ นะครับ งวดหน้าเริ่มกันใหม่ 🌈"];
 
-    // ฟังก์ชันตัวนับแบบปรับปรุงใหม่
     function updateVisitorCount() {
-        // ใช้ Key ที่เจาะจงและมีเลข Version เพื่อเลี่ยง Cache เก่า
         const cacheBuster = Math.floor(Date.now() / 1000);
         const url = `https://api.countapi.xyz/hit/pea_nkp_v2_${cacheBuster % 10}/visit`;
 
         fetch(url)
             .then(res => res.json())
-            .then(data => {
-                // ถ้า API ทำงานปกติ จะได้เลขสะสม
-                document.getElementById('total-v').innerText = data.value.toLocaleString();
-            })
+            .then(data => document.getElementById('total-v').innerText = data.value.toLocaleString())
             .catch(() => {
-                // ถ้า API ล่ม ให้ใช้วิธีนับในเครื่องตัวเอง (เป็นแผนสำรอง)
                 let count = localStorage.getItem('local_v') || 0;
-                count++;
-                localStorage.setItem('local_v', count);
+                localStorage.setItem('local_v', ++count);
                 document.getElementById('total-v').innerText = count;
             });
     }
@@ -125,28 +198,91 @@
         }
     }
 
+    // ฟังก์ชันสำหรับทำตัวเลขวิ่ง (Count Up)
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            // Easing function for smooth stop
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4); 
+            
+            const currentVal = progress === 1 ? end : (start + (end - start) * easeOutQuart);
+            obj.innerHTML = currentVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
     function calculate() {
         const salary = parseFloat(currSalaryInput.value);
         const oldEntry = parseFloat(oldInput.value);
         const newEntry = parseFloat(newInput.value);
-        if (isNaN(salary) || isNaN(oldEntry) || isNaN(newEntry)) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        
+        if (isNaN(salary) || isNaN(oldEntry) || isNaN(newEntry)) {
+            // Shake animation if error
+            document.querySelector('.card').style.animation = 'none';
+            document.querySelector('.card').offsetHeight; /* trigger reflow */
+            document.querySelector('.card').style.animation = 'shake 0.5s';
+            return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        }
 
         const result = ((salary - oldEntry) * 0.5832) - (salary - newEntry);
-        const resBox = document.getElementById('resultBox');
         const resAmt = document.getElementById('resAmt');
         const msgArea = document.getElementById('randomMsg');
 
-        resBox.style.display = 'block';
-        resAmt.innerText = result.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        
-        if (result >= 0) {
-            resAmt.style.color = "var(--corp-green)"; msgArea.style.color = "var(--corp-green)";
+        // Reset and Show Box
+        resultBox.style.display = 'none';
+        resultBox.offsetHeight; // trigger reflow
+        resultBox.style.display = 'block';
+        resultBox.style.animation = 'slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+        // เลือกสีและข้อความ
+        let isPositive = result >= 0;
+        if (isPositive) {
+            resAmt.style.color = "var(--corp-green)"; 
+            msgArea.style.color = "var(--corp-green)";
             msgArea.innerText = posMessages[Math.floor(Math.random() * posMessages.length)];
+            
+            // Effect: ยิงพลุเมื่อได้กำไร
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#2E7D32', '#B59461', '#1A2E44'] // สีธีมองค์กร
+            });
+
         } else {
-            resAmt.style.color = "var(--corp-red)"; msgArea.style.color = "var(--corp-red)";
+            resAmt.style.color = "var(--corp-red)"; 
+            msgArea.style.color = "var(--corp-red)";
             msgArea.innerText = negMessages[Math.floor(Math.random() * negMessages.length)];
         }
+
+        // Effect: ตัวเลขวิ่ง
+        animateValue(resAmt, 0, result, 1500);
+        
+        // เลื่อนหน้าจอลงมาที่ผลลัพธ์เล็กน้อยบนมือถือ
+        if(window.innerWidth < 768) {
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
+    
+    // เพิ่ม CSS Animation Keyframes สำหรับ Shake
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    `;
+    document.head.appendChild(styleSheet);
+    
     handleEduChange();
 </script>
 </body>

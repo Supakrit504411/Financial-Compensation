@@ -14,18 +14,17 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            /* Pastel Background */
             background: linear-gradient(135deg, #FFF5F7, #E3F2FD, #F3E5F5, #FFFDE7);
             background-size: 400% 400%;
             animation: softFlow 20s ease infinite;
             color: #333; 
             font-family: 'Sarabun', sans-serif; 
             margin: 0; 
-            height: 100vh; /* ความสูงเต็มจอ */
+            height: 100vh; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            padding: 10px; /* ลด Padding ขอบจอ */
+            padding: 10px; 
             overflow: hidden; 
         }
 
@@ -40,26 +39,25 @@
         .card { 
             background: rgba(255, 255, 255, 0.92); 
             border-radius: 16px; 
-            padding: 20px; /* ลด Padding การ์ด */
+            padding: 20px; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(255,255,255,0.8); 
             backdrop-filter: blur(8px);
-            max-height: 98vh; /* เกือบเต็มจอ */
-            overflow-y: auto; /* เลื่อนได้เฉพาะข้างในถ้าจำเป็นจริงๆ */
+            max-height: 98vh; 
+            overflow-y: auto; 
             display: flex;
             flex-direction: column;
         }
-        /* ซ่อน Scrollbar */
         .card::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        .card-header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
+        .card-header { text-align: center; margin-bottom: 12px; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
         .card-title { font-size: 1.3rem; font-weight: 700; margin: 0; color: var(--corp-navy); }
 
         .input-group { margin-bottom: 10px; }
         label { display: block; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; color: var(--corp-navy); }
         
         select, input { 
-            width: 100%; padding: 10px; /* ลดขนาด input */
+            width: 100%; padding: 10px; 
             border: 1px solid #E2E8F0; border-radius: 8px; 
             font-size: 0.95rem; outline: none; transition: 0.3s; background: var(--input-bg); 
         }
@@ -90,11 +88,20 @@
             background: linear-gradient(to bottom, #FFFFFF, #FFFCF2);
             border: 1px solid #F0E6D2; 
         }
-        .result-amount { font-size: 1.8rem; font-weight: 700; margin: 4px 0; letter-spacing: -0.5px; line-height: 1.2; }
         
-        /* Combined Footer: Formula + Developer */
+        /* จัดเรียงตัวเลขและหน่วยให้อยู่บรรทัดเดียวกัน */
+        .result-value-row {
+            display: flex;
+            justify-content: center;
+            align-items: baseline; /* จัดให้ฐานตัวหนังสือเท่ากัน */
+            gap: 5px;
+            margin: 4px 0;
+        }
+        .result-amount { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+        .result-unit { font-size: 1rem; font-weight: 500; color: #888; }
+        
         .footer-combined {
-            margin-top: 15px;
+            margin-top: 12px;
             background: #F8FAFC; 
             border: 1px solid #E2E8F0;
             border-left: 3px solid #DAA520;
@@ -109,7 +116,7 @@
 
         .developer-name { 
             font-weight: 600; 
-            align-self: flex-end; /* ชิดขวา */
+            align-self: flex-end; 
             background: linear-gradient(to right, #1A2E44, #B59461, #DAA520); 
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
             animation: ledFlow 4s linear infinite; 
@@ -148,7 +155,12 @@
 
         <div id="resultBox" class="result-box">
             <div style="font-size: 0.75rem; opacity: 0.7;">จำนวนเงินชดเชยสุทธิ</div>
-            <div id="resAmt" class="result-amount">0.00</div>
+            
+            <div class="result-value-row">
+                <span id="resAmt" class="result-amount">0.00</span>
+                <span class="result-unit">บ.</span>
+            </div>
+            
             <div id="randomMsg" style="font-size: 0.85rem; font-weight: 500;"></div>
         </div>
 
@@ -232,7 +244,6 @@
         }
         animateValue(resAmt, 0, result, 1200);
 
-        // Auto Scroll นิดนึงเผื่อจอเล็กมากๆ จริงๆ (แต่ Layout นี้ควรจะพอดีแล้ว)
         setTimeout(() => {
             resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);

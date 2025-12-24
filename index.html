@@ -14,7 +14,7 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        /* 1. Animated Background */
+        /* Animated Background */
         body { 
             background: linear-gradient(-45deg, #1A2E44, #2c4a6e, #B59461, #1A2E44);
             background-size: 400% 400%;
@@ -39,7 +39,6 @@
         .header { text-align: center; margin: 20px 0; animation: fadeInDown 0.8s ease-out; }
         .header h1 { font-size: 1.6rem; font-weight: 700; color: #FFF; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
-        /* Glassmorphism Effect for Card if desired, or just clean white pop */
         .card { 
             background: rgba(255, 255, 255, 0.98); 
             border-radius: 20px; 
@@ -61,7 +60,6 @@
             width: 100%; padding: 14px; border: 2px solid #E0E6ED; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: #FAFCFD; 
         }
         
-        /* Input Focus Effect */
         input:focus, select:focus { 
             border-color: var(--corp-gold); 
             background: #FFF; 
@@ -72,7 +70,6 @@
         input[readonly] { background-color: #F0F4F7; color: #8898aa; border-color: transparent; }
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         
-        /* Button Animation */
         button { 
             width: 100%; padding: 18px; 
             background: linear-gradient(135deg, var(--corp-navy) 0%, #2c4a6e 100%);
@@ -86,7 +83,6 @@
         button:hover { transform: translateY(-3px); box-shadow: 0 7px 14px rgba(26, 46, 68, 0.25); }
         button:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(26, 46, 68, 0.2); }
         
-        /* Result Box Enhancements */
         .result-box { 
             margin-top: 30px; padding: 25px 20px; border-radius: 16px; text-align: center; display: none; 
             background: linear-gradient(to bottom, #FFFFFF, #F8FAFC);
@@ -98,11 +94,11 @@
         
         .formula-card { margin-top: 30px; padding: 20px; background: #EDF2F6; border-radius: 10px; font-size: 0.8rem; color: #556677; border-left: 4px solid var(--corp-gold); }
         
+        /* ปรับ Footer ให้เหลือแค่ชื่อ Developer */
         .footer-section { 
-            margin-top: 25px; text-align: center; display: flex; flex-direction: column; gap: 8px; padding-top: 20px;
+            margin-top: 25px; text-align: center; padding-top: 20px;
             border-top: 1px dashed #E0E0E0; 
         }
-        .visitor-text { font-size: 0.75rem; color: var(--corp-navy); opacity: 0.6; }
         
         .developer-name { 
             font-size: 0.85rem; font-weight: 600; display: inline-block; 
@@ -151,7 +147,6 @@
         </div>
 
         <div class="footer-section">
-            <span class="visitor-text">ผู้เข้าใช้งานทั้งหมด: <span id="total-v">...</span> ครั้ง</span>
             <span class="developer-name">Developer : ชผ.บส.กฟจ.นครพนม</span>
         </div>
     </div>
@@ -165,22 +160,7 @@
     const resultBox = document.getElementById('resultBox');
 
     const posMessages = ["Wow! ฉลองๆ หมูทะต้องเข้าแล้ว 🐷", "ยินดีด้วยครับ! กระเป๋าตุงแน่นอน 💰", "ปังมาก! เตรียมตัวเป็นเศรษฐีหน้าใหม่ ✨", "สุดยอด! ได้ค่าขนมเพิ่มแล้วนะ 🍰", "ใจฟูเลยสิครับ! ยินดีกับยอดด้วยนะ 😊"];
-    const negMessages = ["ไม่เป็นไรนะ... สู้กันต่อไปงวดหน้า ✌️", "ตบบ่าเบาๆ... ยอดนี้อาจยังไม่ใช่ของเรา 🥺", "ฮึบไว้ครับ! ความพยายามไม่ทำร้ายใคร ✊", "โถ่... เกือบไปแล้ว อีกนิดเดียวเท่านั้น 🌊", "ใจเย็นๆ นะครับ งวดหน้าเริ่มกันใหม่ 🌈"];
-
-    function updateVisitorCount() {
-        const cacheBuster = Math.floor(Date.now() / 1000);
-        const url = `https://api.countapi.xyz/hit/pea_nkp_v2_${cacheBuster % 10}/visit`;
-
-        fetch(url)
-            .then(res => res.json())
-            .then(data => document.getElementById('total-v').innerText = data.value.toLocaleString())
-            .catch(() => {
-                let count = localStorage.getItem('local_v') || 0;
-                localStorage.setItem('local_v', ++count);
-                document.getElementById('total-v').innerText = count;
-            });
-    }
-    updateVisitorCount();
+    const negMessages = ["ไม่เป็นไรนะ... สู้กันต่อไปงวดหน้า✌️", "ตบบ่าเบาๆ... ยอดนี้อาจยังไม่ใช่ของเรา 🥺", "ฮึบไว้ครับ! ความพยายามไม่ทำร้ายใคร ✊", "โถ่... เกือบไปแล้ว อีกนิดเดียวเท่านั้น 🌊", "ใจเย็นๆ นะครับ งวดหน้าเริ่มกันใหม่ 🌈"];
 
     [oldInput, newInput, currSalaryInput].forEach(input => {
         input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { calculate(); input.blur(); } });
@@ -204,7 +184,6 @@
         const step = (timestamp) => {
             if (!startTimestamp) startTimestamp = timestamp;
             const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            // Easing function for smooth stop
             const easeOutQuart = 1 - Math.pow(1 - progress, 4); 
             
             const currentVal = progress === 1 ? end : (start + (end - start) * easeOutQuart);
@@ -225,7 +204,7 @@
         if (isNaN(salary) || isNaN(oldEntry) || isNaN(newEntry)) {
             // Shake animation if error
             document.querySelector('.card').style.animation = 'none';
-            document.querySelector('.card').offsetHeight; /* trigger reflow */
+            document.querySelector('.card').offsetHeight; 
             document.querySelector('.card').style.animation = 'shake 0.5s';
             return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
         }
@@ -236,7 +215,7 @@
 
         // Reset and Show Box
         resultBox.style.display = 'none';
-        resultBox.offsetHeight; // trigger reflow
+        resultBox.offsetHeight; 
         resultBox.style.display = 'block';
         resultBox.style.animation = 'slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
@@ -252,7 +231,7 @@
                 particleCount: 150,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: ['#2E7D32', '#B59461', '#1A2E44'] // สีธีมองค์กร
+                colors: ['#2E7D32', '#B59461', '#1A2E44']
             });
 
         } else {
@@ -264,7 +243,6 @@
         // Effect: ตัวเลขวิ่ง
         animateValue(resAmt, 0, result, 1500);
         
-        // เลื่อนหน้าจอลงมาที่ผลลัพธ์เล็กน้อยบนมือถือ
         if(window.innerWidth < 768) {
             resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
